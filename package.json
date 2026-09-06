@@ -1,0 +1,16 @@
+{
+  "name": "topolyne",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Topolyne — design-first map platform for developers. Beautiful maps, one React component.",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "dev": "pnpm --filter @topolyne/web dev",
+    "build": "pnpm -r --filter=./packages/* build && pnpm --filter @topolyne/web build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "@topolyne/react",
+  "version": "0.1.0",
+  "description": "Beautiful, Terraink-inspired maps designed on topolyne.com, embedded with one React component.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": ["*.css"],
+  "dependencies": {
+    "@topolyne/config-schema": "workspace:*",
+    "@topolyne/style-engine": "workspace:*",
+    "maplibre-gl": "^4.7.1"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  }
+}

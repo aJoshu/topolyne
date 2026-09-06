@@ -1,0 +1,39 @@
+{
+  "name": "@topolyne/style-engine",
+  "version": "0.1.0",
+  "description": "Translates a Topolyne semantic map config into a real MapLibre GL style \u2014 the design engine behind every Topolyne map.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "@topolyne/config-schema": "workspace:*",
+    "maplibre-contour": "^0.1.0"
+  },
+  "peerDependencies": {
+    "maplibre-gl": "^4.7.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "@types/geojson": "^7946.0.14",
+    "maplibre-gl": "^4.7.1",
+    "@types/node": "^22.10.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  }
+}
