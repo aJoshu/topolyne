@@ -13,3 +13,4 @@ out/
 *.db-wal
 .turbo/
 _to_delete/
+.vercel/
