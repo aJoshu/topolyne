@@ -81,24 +81,20 @@ route, which is the only place that calls OpenRouteService directly (same patter
 `packages/style-engine/src/directions.ts` once — nothing in the editor, config schema, or
 `<MapRoute>` names a routing vendor.
 
-## An honest note on how this was built
+## Deploying (e.g. Vercel)
 
-This was scaffolded in a sandboxed cloud environment whose network policy doesn't currently allow
-reaching the npm registry, so **none of this has been through `pnpm install`, a type-check, or a
-dev-server run yet** — it was written carefully against the MapLibre GL JS, Next.js 15, and
-maplibre-contour APIs from knowledge, not verified by a compiler here. The most likely rough edges
-on a first `pnpm install && pnpm dev`:
+`apps/web/src/lib/db.ts` uses [libSQL](https://turso.tech/libsql) rather than a local SQLite file,
+specifically so this works on serverless hosts: Vercel's functions run on a read-only filesystem
+with nothing persisted between invocations, so a local file-based database would lose every saved
+map the moment it's deployed there. Locally, with no `TURSO_DATABASE_URL` set, it still just opens
+a plain file at `.data/topolyne.db` — no setup needed for `pnpm dev`. In production, create a free
+database at [turso.tech](https://turso.tech) and set `TURSO_DATABASE_URL`/`TURSO_AUTH_TOKEN` (see
+`apps/web/.env.example`) — nothing else in the app changes.
 
-- `maplibre-contour`'s exact `DemSource` constructor options / `contourProtocolUrl` signature —
-  cross-check `packages/style-engine/src/contours.ts` against whatever version installs.
-- Next.js 15's async `params` convention in the API routes and `editor/[id]/page.tsx` — verify
-  against the installed `next` version.
-- `better-sqlite3` needs a prebuilt binary for your platform; it ships one for Windows x64, which
-  is what this was built for, so a plain install should work.
-
-Everything else — the config schema, the style-translation logic, the preset design decisions,
-the editor/SDK wiring — is original and complete; these are just the specific spots worth a look
-before you trust them blindly.
+Because this is a pnpm workspace and the three packages resolve via their built `dist/` (not
+source) once installed as dependencies, `apps/web/vercel.json` overrides Vercel's install/build
+commands to build `packages/*` before building the Next.js app — set the project's **Root
+Directory** to `apps/web` when importing it on Vercel and the rest is picked up automatically.
 
 ## MVP scope (see `PLAN.md` for what's deliberately deferred)
 
