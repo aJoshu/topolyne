@@ -12,3 +12,4 @@ out/
 *.db-shm
 *.db-wal
 .turbo/
+_to_delete/
