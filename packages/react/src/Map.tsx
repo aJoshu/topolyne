@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { MapConfig } from "@topolyne/config-schema";
-import { buildMapStyle, defaultProvider, registerWindowPattern, setupContourSource, type MapProviderConfig } from "@topolyne/style-engine";
+import { buildMapStyle, defaultProvider, setupContourSource, type MapProviderConfig } from "@topolyne/style-engine";
 import { fetchPublishedMap } from "./fetchPublishedMap.js";
 import { TopolyneMapContext } from "./context.js";
 
@@ -114,6 +114,28 @@ export function Map({
         const published = await fetchPublishedMap(mapId);
         if (cancelled || !containerRef.current) return;
 
+        // A className that never actually applies (Tailwind's `h-[500px]`
+        // in an app that doesn't have Tailwind configured, say) leaves this
+        // container with real width but 0 height — a block element's width
+        // defaults to its parent's, but height doesn't get an equivalent
+        // free ride. MapLibre then mounts into a 0px-tall canvas and just
+        // renders nothing, with no error anywhere. The `minHeight: 300`
+        // fallback below covers the common case; this is a last-resort
+        // console nudge for whatever gets past it (an ancestor forcing
+        // height:0, a CSS reset, etc.) so it reads as a diagnosable message
+        // instead of a silent blank map.
+        const rect = containerRef.current.getBoundingClientRect();
+        if (rect.height === 0 || rect.width === 0) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `[@topolyne/react] The <Map> container has a 0px ${rect.width === 0 ? "width" : "height"} ` +
+              `(${Math.round(rect.width)}x${Math.round(rect.height)}), so nothing will be visible. ` +
+              `Give it real size with an inline style (e.g. style={{ height: 500 }}) or CSS that's ` +
+              `actually being applied — a className like "h-[500px]" only works if your app has ` +
+              `Tailwind (or an equivalent utility) configured to generate it.`,
+          );
+        }
+
         const config: MapConfig = published.config;
         const contourSource = config.terrain.contours
           ? await setupContourSource(provider, maplibregl)
@@ -145,7 +167,6 @@ export function Map({
         map.once("style.load", () => {
           map?.setTerrain(mapStyle.terrain ?? null);
           map?.setSky(mapStyle.sky ?? {});
-          if (map) registerWindowPattern(map, config.colors.buildings);
         });
         setSkyState({ grain: config.sky.grainEnabled });
 
@@ -188,7 +209,7 @@ export function Map({
   }, [center?.[0], center?.[1], zoom, pitch, bearing, loaded]);
 
   return (
-    <div className={className} style={{ position: "relative", ...style }}>
+    <div className={className} style={{ position: "relative", minHeight: 300, ...style }}>
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
       <SkyOverlays showGrain={sky.grain} />
       {error && (

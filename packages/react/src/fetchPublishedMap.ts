@@ -24,6 +24,11 @@ export function getApiBase(): string {
  * across page loads in module state.
  */
 export async function fetchPublishedMap(mapId: string): Promise<PublishedMap> {
+  // A stray leading/trailing space (copy-pasted from the dashboard, a
+  // template literal with accidental whitespace) turns into a literal %20
+  // in the URL and 404s with an error that just looks like a wrong id —
+  // trimming here means the id you can see is the id that's actually used.
+  mapId = mapId.trim();
   const res = await fetch(`${apiBase}/api/maps/${encodeURIComponent(mapId)}`, {
     // Let the browser/HTTP cache do short-lived revalidation; never force a
     // stale build-time snapshot.

@@ -3,7 +3,6 @@ import type { MapConfig } from "@topolyne/config-schema";
 import type { MapProviderConfig } from "./providers.js";
 import { darken, lighten, mix, readableInk, withAlpha } from "./colorUtils.js";
 import { DEFAULT_CONTOUR_THRESHOLDS, type ContourSourceHandle } from "./contours.js";
-import { BUILDING_PATTERN_ID } from "./buildingPattern.js";
 
 export interface BuildStyleOptions {
   /**
@@ -102,9 +101,17 @@ export function buildMapStyle(
     ...(wantsTerrainSources && !wantsSatellite ? hillshadeLayers(config) : []),
     ...(wantsSatellite ? [] : areaLayers(config)),
     ...(wantsContours ? contourLayers(config) : []),
-    ...buildingLayers(config),
-    ...roadLayers(config),
-    ...borderLayers(config),
+    // MapLibre never depth-tests 2D line layers against 3D fill-extrusion
+    // geometry — whichever is *painted* later simply wins on overlapping
+    // pixels regardless of which is actually in front. In 3D mode buildings
+    // need to be that later, opaque layer so a tall building's silhouette
+    // actually covers the road/border underneath it, instead of the road
+    // rendering through it. In flat 2D mode buildings are a deliberately
+    // translucent footprint tint (not solid), so the original order — roads
+    // drawn on top, staying fully legible — is still the right call there.
+    ...(config.layers.buildings3d
+      ? [...roadLayers(config), ...borderLayers(config), ...buildingLayers(config)]
+      : [...buildingLayers(config), ...roadLayers(config), ...borderLayers(config)]),
     ...labelLayers(config),
     // Always last — pins mark a specific spot for the person looking at the
     // map, so they should never be hidden under roads/labels/buildings.
@@ -327,14 +334,6 @@ function buildingLayers(config: MapConfig): LayerSpecification[] {
           // A built-in top-to-bottom brightness falloff on each facade —
           // real depth/shading instead of one flat, uniform color per wall.
           "fill-extrusion-vertical-gradient": true,
-          // A window-grid texture generated client-side from `colors.
-          // buildings` (see buildingPattern.ts) rather than a fixed sprite
-          // asset, which couldn't be recolored to match an arbitrary preset/
-          // user color. The caller (MapCanvas, the SDK's <Map>) is
-          // responsible for actually registering this image id via
-          // map.addImage()/registerWindowPattern() before the style loads —
-          // this just references it by name.
-          "fill-extrusion-pattern": BUILDING_PATTERN_ID,
         },
       },
     ];
