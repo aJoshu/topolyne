@@ -1,4 +1,4 @@
-import type { Colors, Layers, MapConfig, Roads, Terrain } from "@topolyne/config-schema";
+import type { Colors, Layers, MapConfig, Roads, Sky, Terrain } from "@topolyne/config-schema";
 import { CONFIG_FORMAT_VERSION } from "@topolyne/config-schema";
 
 export interface Preset {
@@ -14,6 +14,7 @@ export interface Preset {
   layers: Layers;
   borders: MapConfig["borders"];
   labels: MapConfig["labels"];
+  sky: Sky;
 }
 
 /**
@@ -51,6 +52,7 @@ export const presets: Preset[] = [
     layers: { buildings: true, parks: true, water: true, buildings3d: false },
     borders: { country: true, region: false },
     labels: { cities: true, roads: false, poi: false, scale: 1 },
+    sky: { color: "#A8D5E8", horizonColor: "#F5EFE0", sunEnabled: false, starsEnabled: false },
   },
   {
     id: "midnight-terrain",
@@ -77,6 +79,7 @@ export const presets: Preset[] = [
     layers: { buildings: true, parks: true, water: true, buildings3d: false },
     borders: { country: true, region: false },
     labels: { cities: true, roads: false, poi: false, scale: 1 },
+    sky: { color: "#050914", horizonColor: "#1A2740", sunEnabled: false, starsEnabled: true },
   },
   {
     id: "paper-atlas",
@@ -103,6 +106,7 @@ export const presets: Preset[] = [
     layers: { buildings: true, parks: true, water: true, buildings3d: false },
     borders: { country: true, region: true },
     labels: { cities: true, roads: false, poi: false, scale: 1 },
+    sky: { color: "#DCE8E6", horizonColor: "#F7F2E7", sunEnabled: false, starsEnabled: false },
   },
   {
     id: "slate",
@@ -129,6 +133,7 @@ export const presets: Preset[] = [
     layers: { buildings: true, parks: true, water: true, buildings3d: false },
     borders: { country: true, region: false },
     labels: { cities: true, roads: false, poi: false, scale: 1 },
+    sky: { color: "#D7DEE3", horizonColor: "#F5F6F7", sunEnabled: false, starsEnabled: false },
   },
   {
     id: "sandstone",
@@ -155,6 +160,7 @@ export const presets: Preset[] = [
     layers: { buildings: true, parks: true, water: true, buildings3d: false },
     borders: { country: true, region: false },
     labels: { cities: true, roads: false, poi: false, scale: 1 },
+    sky: { color: "#F5D9A8", horizonColor: "#F2E2C8", sunEnabled: true, starsEnabled: false },
   },
   {
     id: "arctic",
@@ -181,6 +187,7 @@ export const presets: Preset[] = [
     layers: { buildings: true, parks: true, water: true, buildings3d: false },
     borders: { country: true, region: false },
     labels: { cities: true, roads: false, poi: false, scale: 0.95 },
+    sky: { color: "#DCEEF7", horizonColor: "#F4FAFC", sunEnabled: false, starsEnabled: false },
   },
   {
     id: "neon-grid",
@@ -207,6 +214,7 @@ export const presets: Preset[] = [
     layers: { buildings: true, parks: true, water: true, buildings3d: true },
     borders: { country: false, region: false },
     labels: { cities: true, roads: false, poi: true, scale: 1.05 },
+    sky: { color: "#050208", horizonColor: "#0D0B1A", sunEnabled: false, starsEnabled: true },
   },
   {
     id: "forest-canopy",
@@ -233,6 +241,7 @@ export const presets: Preset[] = [
     layers: { buildings: true, parks: true, water: true, buildings3d: false },
     borders: { country: true, region: true },
     labels: { cities: true, roads: false, poi: false, scale: 1 },
+    sky: { color: "#3A5A45", horizonColor: "#213823", sunEnabled: false, starsEnabled: false },
   },
 ];
 
@@ -260,5 +269,6 @@ export function configFromPreset(
     borders: preset.borders,
     labels: preset.labels,
     layers: preset.layers,
+    sky: preset.sky,
   };
 }

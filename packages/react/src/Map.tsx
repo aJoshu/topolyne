@@ -32,6 +32,68 @@ function closeCompactAttribution(map: maplibregl.Map) {
   map.once("idle", () => map.off("data", onData));
 }
 
+// Sun/stars/grain are fabricated purely in CSS - MapLibre's sky spec has no
+// celestial rendering (no sun position, no stars, unlike Mapbox's atmosphere
+// system), and grain is a texture no vector-tile layer could produce anyway.
+const NOISE_SVG =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E";
+const STAR_DOTS = [
+  "6px 12px", "34px 40px", "70px 8px", "98px 55px", "130px 20px", "160px 60px", "190px 15px", "210px 75px",
+  "18px 90px", "55px 120px", "88px 100px", "120px 140px", "150px 105px", "180px 130px", "205px 150px",
+].map((pos) => `radial-gradient(1.4px 1.4px at ${pos}, white, transparent)`).join(", ");
+
+function SkyOverlays({ showStars, showSun }: { showStars: boolean; showSun: boolean }) {
+  return (
+    <>
+      {showStars && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            height: "45%",
+            backgroundImage: STAR_DOTS,
+            backgroundSize: "220px 160px",
+            backgroundRepeat: "repeat",
+            maskImage: "linear-gradient(to bottom, black, transparent)",
+            WebkitMaskImage: "linear-gradient(to bottom, black, transparent)",
+            opacity: 0.8,
+            pointerEvents: "none",
+          }}
+        />
+      )}
+      {showSun && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            top: "4%",
+            right: "10%",
+            width: 90,
+            height: 90,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(255,244,214,0.95) 0%, rgba(255,220,150,0.5) 35%, rgba(255,220,150,0) 70%)",
+            filter: "blur(1px)",
+            pointerEvents: "none",
+          }}
+        />
+      )}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: `url("${NOISE_SVG}")`,
+          backgroundRepeat: "repeat",
+          mixBlendMode: "overlay",
+          opacity: 0.05,
+          pointerEvents: "none",
+        }}
+      />
+    </>
+  );
+}
+
 export interface MapProps {
   /** The id you got back from "Publish" in the Topolyne editor, e.g. "map_Nvm9w6Wn9d". */
   mapId: string;
@@ -75,6 +137,7 @@ export function Map({
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
+  const [sky, setSkyState] = useState({ tilted: false, stars: false, sun: false });
 
   useEffect(() => {
     let cancelled = false;
@@ -109,6 +172,16 @@ export function Map({
           attributionControl: { compact: true },
         });
         closeCompactAttribution(map);
+        // A style's `terrain`/`sky` fields passed at construction time
+        // aren't always picked up on their own - setting both explicitly
+        // once the style has actually finished loading is the reliable way
+        // to apply either one.
+        map.once("style.load", () => {
+          map?.setTerrain(mapStyle.terrain ?? null);
+          map?.setSky(mapStyle.sky ?? {});
+        });
+        const effectivePitch = pitch ?? config.location.pitch ?? 0;
+        setSkyState({ tilted: effectivePitch > 0, stars: config.sky.starsEnabled, sun: config.sky.sunEnabled });
 
         mapRef.current = map;
         map.on("load", () => {
@@ -151,6 +224,7 @@ export function Map({
   return (
     <div className={className} style={{ position: "relative", ...style }}>
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
+      <SkyOverlays showStars={sky.tilted && sky.stars} showSun={sky.tilted && sky.sun} />
       {error && (
         <div style={errorBannerStyle} role="alert">
           {error}

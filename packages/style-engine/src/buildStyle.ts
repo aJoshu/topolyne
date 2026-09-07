@@ -83,6 +83,11 @@ export function buildMapStyle(
   // shaded texture regardless; it lays over the deformed mesh perfectly
   // fine when terrain is also on.
   const wantsRealTerrain = wantsTerrainSources && (config.location.pitch ?? 0) > 0;
+  // Sky is just a color gradient — unlike terrain it needs no DEM data, so
+  // it's available even without a MapTiler key. Still only worth including
+  // once tilted: at pitch 0 you're looking straight down and MapLibre never
+  // shows any sky at all, whatever this says.
+  const wantsSky = (config.location.pitch ?? 0) > 0;
 
   return {
     version: 8,
@@ -99,6 +104,7 @@ export function buildMapStyle(
     pitch: config.location.pitch ?? 0,
     bearing: config.location.bearing ?? 0,
     ...(wantsRealTerrain ? { terrain: { source: "dem", exaggeration: 1 + config.terrain.intensity * 2 } } : {}),
+    ...(wantsSky ? { sky: { "sky-color": config.sky.color, "horizon-color": config.sky.horizonColor } } : {}),
   };
 }
 

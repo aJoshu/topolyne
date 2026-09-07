@@ -70,6 +70,20 @@ export const layersSchema = z.object({
   buildings3d: z.boolean().default(false),
 });
 
+/**
+ * Only visible once the map is tilted (MapLibre's own sky/fog system doesn't
+ * render at pitch 0, looking straight down) — same rule 3D terrain follows.
+ * Sun and stars aren't a real MapLibre capability (no atmosphere/celestial
+ * rendering in its sky spec, unlike Mapbox's), so those are fabricated as a
+ * CSS overlay in the app rather than real 3D-rendered geometry.
+ */
+export const skySchema = z.object({
+  color: z.string().default("#87CEEB"),
+  horizonColor: z.string().default("#FFFFFF"),
+  sunEnabled: z.boolean().default(false),
+  starsEnabled: z.boolean().default(false),
+});
+
 export const mapConfigSchema = z.object({
   version: z.literal(CONFIG_FORMAT_VERSION).default(CONFIG_FORMAT_VERSION),
   /** id of the preset this design started from — kept even after edits, for provenance/UI */
@@ -82,6 +96,7 @@ export const mapConfigSchema = z.object({
   borders: bordersSchema,
   labels: labelsSchema,
   layers: layersSchema,
+  sky: skySchema.default({}),
 });
 
 export type Location = z.infer<typeof locationSchema>;
@@ -91,6 +106,7 @@ export type Roads = z.infer<typeof roadsSchema>;
 export type Borders = z.infer<typeof bordersSchema>;
 export type Labels = z.infer<typeof labelsSchema>;
 export type Layers = z.infer<typeof layersSchema>;
+export type Sky = z.infer<typeof skySchema>;
 export type MapConfig = z.infer<typeof mapConfigSchema>;
 
 /** What the public `/api/maps/:id` (and therefore the React SDK) actually returns. */
