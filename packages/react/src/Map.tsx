@@ -101,6 +101,11 @@ export function Map({
           pitch: pitch ?? config.location.pitch,
           bearing: bearing ?? config.location.bearing,
           interactive,
+          // MapLibre's own default maxPitch is 60, not its true 85 ceiling -
+          // the editor already saves pitches up to 85, so without this a
+          // published design's saved tilt would silently get clamped back
+          // down to 60 the moment it's embedded.
+          maxPitch: 85,
           attributionControl: { compact: true },
         });
         closeCompactAttribution(map);
