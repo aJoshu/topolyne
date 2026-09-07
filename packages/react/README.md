@@ -12,7 +12,7 @@ npm install @topolyne/react
 import { Map } from "@topolyne/react";
 
 export default function Page() {
-  return <Map mapId="map_x7K92dsA" style={{ width: "100%", height: "500px" }} />;
+  return <Map mapId="map_Nvm9w6Wn9d" style={{ width: "100%", height: "500px" }} />;
 }
 ```
 
@@ -23,7 +23,7 @@ export default function Page() {
 ```tsx
 import { Map, MapMarker } from "@topolyne/react";
 
-<Map mapId="map_x7K92dsA" style={{ width: "100%", height: "500px" }}>
+<Map mapId="map_Nvm9w6Wn9d" style={{ width: "100%", height: "500px" }}>
   <MapMarker latitude={40.7128} longitude={-74.006} onClick={() => alert("Hi from NYC")} />
 </Map>;
 ```

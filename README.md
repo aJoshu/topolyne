@@ -6,7 +6,7 @@ publish it, and embed the exact result in a React app with one component:
 ```tsx
 import { Map } from "@topolyne/react";
 
-<Map mapId="map_x7K92dsA" />
+<Map mapId="map_Nvm9w6Wn9d" />
 ```
 
 See [`PLAN.md`](./PLAN.md) for the full research, naming, architecture and risk write-up behind
@@ -70,7 +70,7 @@ and set `ORS_API_KEY` in `apps/web/.env.local`. Without it, `/api/directions` re
 ```tsx
 import { Map, MapRoute } from "@topolyne/react";
 
-<Map mapId="map_x7K92dsA" style={{ width: "100%", height: "500px" }}>
+<Map mapId="map_Nvm9w6Wn9d" style={{ width: "100%", height: "500px" }}>
   <MapRoute origin={[-5.9301, 54.5964]} destination={[-5.9081, 54.6031]} />
 </Map>;
 ```

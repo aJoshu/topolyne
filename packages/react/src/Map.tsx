@@ -33,7 +33,7 @@ function closeCompactAttribution(map: maplibregl.Map) {
 }
 
 export interface MapProps {
-  /** The id you got back from "Publish" in the Topolyne editor, e.g. "map_x7K92dsA". */
+  /** The id you got back from "Publish" in the Topolyne editor, e.g. "map_Nvm9w6Wn9d". */
   mapId: string;
   className?: string;
   style?: CSSProperties;
