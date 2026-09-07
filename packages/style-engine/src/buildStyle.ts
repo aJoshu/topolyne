@@ -103,7 +103,10 @@ export function buildMapStyle(
     zoom: config.location.zoom,
     pitch: config.location.pitch ?? 0,
     bearing: config.location.bearing ?? 0,
-    ...(wantsRealTerrain ? { terrain: { source: "dem", exaggeration: 1 + config.terrain.intensity * 2 } } : {}),
+    // 1x is true-to-scale; anything past ~1.8x starts looking like spikes
+    // rather than real mountains, so intensity only stretches into that
+    // moderate range instead of all the way to 3x.
+    ...(wantsRealTerrain ? { terrain: { source: "dem", exaggeration: 1 + config.terrain.intensity * 0.8 } } : {}),
     ...(wantsSky ? { sky: { "sky-color": config.sky.color, "horizon-color": config.sky.horizonColor } } : {}),
   };
 }

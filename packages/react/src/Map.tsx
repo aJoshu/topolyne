@@ -42,25 +42,51 @@ const STAR_DOTS = [
   "18px 90px", "55px 120px", "88px 100px", "120px 140px", "150px 105px", "180px 130px", "205px 150px",
 ].map((pos) => `radial-gradient(1.4px 1.4px at ${pos}, white, transparent)`).join(", ");
 
-function SkyOverlays({ showStars, showSun }: { showStars: boolean; showSun: boolean }) {
+function SkyOverlays({
+  showStars,
+  showSun,
+  bearing = 0,
+}: {
+  showStars: boolean;
+  showSun: boolean;
+  bearing?: number;
+}) {
   return (
     <>
       {showStars && (
+        // Clipped to a smaller top slice and overflow:hidden on an oversized
+        // rotated inner layer, so spinning the map never reveals an empty
+        // corner. Rotating with bearing at least *looks* responsive, since a
+        // flat overlay has no real notion of which way the map is pointed;
+        // it also can't occlude behind buildings/terrain reaching into frame
+        // without a real WebGL layer, which this deliberately isn't.
         <div
           aria-hidden="true"
           style={{
             position: "absolute",
             inset: 0,
-            height: "45%",
-            backgroundImage: STAR_DOTS,
-            backgroundSize: "220px 160px",
-            backgroundRepeat: "repeat",
+            height: "28%",
+            overflow: "hidden",
             maskImage: "linear-gradient(to bottom, black, transparent)",
             WebkitMaskImage: "linear-gradient(to bottom, black, transparent)",
-            opacity: 0.8,
             pointerEvents: "none",
           }}
-        />
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: "-50%",
+              left: "-50%",
+              width: "200%",
+              height: "200%",
+              backgroundImage: STAR_DOTS,
+              backgroundSize: "220px 160px",
+              backgroundRepeat: "repeat",
+              transform: `rotate(${bearing}deg)`,
+              opacity: 0.8,
+            }}
+          />
+        </div>
       )}
       {showSun && (
         <div
@@ -137,7 +163,7 @@ export function Map({
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
-  const [sky, setSkyState] = useState({ tilted: false, stars: false, sun: false });
+  const [sky, setSkyState] = useState({ tilted: false, stars: false, sun: false, bearing: 0 });
 
   useEffect(() => {
     let cancelled = false;
@@ -181,7 +207,13 @@ export function Map({
           map?.setSky(mapStyle.sky ?? {});
         });
         const effectivePitch = pitch ?? config.location.pitch ?? 0;
-        setSkyState({ tilted: effectivePitch > 0, stars: config.sky.starsEnabled, sun: config.sky.sunEnabled });
+        const effectiveBearing = bearing ?? config.location.bearing ?? 0;
+        setSkyState({
+          tilted: effectivePitch > 0,
+          stars: config.sky.starsEnabled,
+          sun: config.sky.sunEnabled,
+          bearing: effectiveBearing,
+        });
 
         mapRef.current = map;
         map.on("load", () => {
@@ -216,15 +248,21 @@ export function Map({
     if (!mapRef.current || !loaded) return;
     if (center) mapRef.current.setCenter(center);
     if (zoom !== undefined) mapRef.current.setZoom(zoom);
-    if (pitch !== undefined) mapRef.current.setPitch(pitch);
-    if (bearing !== undefined) mapRef.current.setBearing(bearing);
+    if (pitch !== undefined) {
+      mapRef.current.setPitch(pitch);
+      setSkyState((s) => ({ ...s, tilted: pitch > 0 }));
+    }
+    if (bearing !== undefined) {
+      mapRef.current.setBearing(bearing);
+      setSkyState((s) => ({ ...s, bearing }));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [center?.[0], center?.[1], zoom, pitch, bearing, loaded]);
 
   return (
     <div className={className} style={{ position: "relative", ...style }}>
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
-      <SkyOverlays showStars={sky.tilted && sky.stars} showSun={sky.tilted && sky.sun} />
+      <SkyOverlays showStars={sky.tilted && sky.stars} showSun={sky.tilted && sky.sun} bearing={sky.bearing} />
       {error && (
         <div style={errorBannerStyle} role="alert">
           {error}
