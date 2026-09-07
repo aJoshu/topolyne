@@ -8,16 +8,28 @@ import { buildMapStyle, defaultProvider, setupContourSource, type MapProviderCon
 import { fetchPublishedMap } from "./fetchPublishedMap";
 import { TopolyneMapContext } from "./context";
 
+function closeAttrib(map: maplibregl.Map) {
+  const el = map.getContainer().querySelector(".maplibregl-ctrl-attrib");
+  el?.removeAttribute("open");
+  el?.classList.remove("maplibregl-compact-show");
+}
+
 /**
  * MapLibre's "compact" attribution control actually starts *open* (full
  * "OpenFreeMap | OpenMapTiles | © OpenStreetMap contributors" text visible)
  * despite the name — it only collapses to just the (i) icon after the first
- * mouseout. This forces it collapsed from the start instead.
+ * mouseout. Worse, it re-opens itself on every "styledata" event fired while
+ * sources are still loading (each source's metadata arriving re-triggers its
+ * internal _updateCompact()), so closing it once right after construction
+ * isn't enough — it silently reopens a moment later. Keep closing it on
+ * every "data" event until the map reaches "idle" (initial load settled),
+ * then stop so a genuine user click on the (i) icon isn't fought afterward.
  */
 function closeCompactAttribution(map: maplibregl.Map) {
-  const el = map.getContainer().querySelector(".maplibregl-ctrl-attrib");
-  el?.removeAttribute("open");
-  el?.classList.remove("maplibregl-compact-show");
+  closeAttrib(map);
+  const onData = () => closeAttrib(map);
+  map.on("data", onData);
+  map.once("idle", () => map.off("data", onData));
 }
 
 export interface MapProps {
