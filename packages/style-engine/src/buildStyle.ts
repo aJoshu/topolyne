@@ -75,6 +75,15 @@ export function buildMapStyle(
     ...labelLayers(config),
   ];
 
+  // Real 3D terrain (MapLibre deforming the mesh itself, not just a shaded
+  // flat texture) only when there's actually a tilt to see it from — at
+  // pitch 0 you're looking straight down, where deformed terrain and flat
+  // terrain with the same hillshade look identical, so there's no reason to
+  // pay the extra render cost. `hillshadeLayers` above still draws its
+  // shaded texture regardless; it lays over the deformed mesh perfectly
+  // fine when terrain is also on.
+  const wantsRealTerrain = wantsTerrainSources && (config.location.pitch ?? 0) > 0;
+
   return {
     version: 8,
     name: `Topolyne — ${config.name}`,
@@ -89,6 +98,7 @@ export function buildMapStyle(
     zoom: config.location.zoom,
     pitch: config.location.pitch ?? 0,
     bearing: config.location.bearing ?? 0,
+    ...(wantsRealTerrain ? { terrain: { source: "dem", exaggeration: 1 + config.terrain.intensity * 2 } } : {}),
   };
 }
 
