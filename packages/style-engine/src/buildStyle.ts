@@ -3,6 +3,7 @@ import type { MapConfig } from "@topolyne/config-schema";
 import type { MapProviderConfig } from "./providers.js";
 import { darken, lighten, mix, readableInk, withAlpha } from "./colorUtils.js";
 import { DEFAULT_CONTOUR_THRESHOLDS, type ContourSourceHandle } from "./contours.js";
+import { BUILDING_PATTERN_ID } from "./buildingPattern.js";
 
 export interface BuildStyleOptions {
   /**
@@ -312,18 +313,28 @@ function buildingLayers(config: MapConfig): LayerSpecification[] {
           // fallback so those don't render as flat (height 0) extrusions.
           "fill-extrusion-height": ["coalesce", ["get", "render_height"], 6],
           "fill-extrusion-base": ["coalesce", ["get", "render_min_height"], 0],
-          // Fades in over zoom 13-15 so buildings don't just pop into
-          // existence, but reaches fully opaque (not 0.92) — anything short
-          // of 1 reads as glassy/see-through at the zooms buildings are
-          // actually looked at.
-          "fill-extrusion-opacity": ["interpolate", ["linear"], ["zoom"], 13, 0, 15, 1],
+          // A literal `1`, not a zoom-interpolated expression that merely
+          // evaluates to 1 at the zooms buildings are actually seen at.
+          // MapLibre only renders fill-extrusion as real opaque, depth-
+          // tested geometry when this is the constant 1 — anything else
+          // (including an expression whose output happens to reach 1) makes
+          // it fall back to translucent, order-independent blending, which
+          // is exactly what read as buildings/roads showing through other
+          // buildings. `minzoom: 13` above already keeps them from popping
+          // in early, so the fade-in this used to do wasn't pulling its
+          // weight against that bug anyway.
+          "fill-extrusion-opacity": 1,
           // A built-in top-to-bottom brightness falloff on each facade —
-          // real depth/shading instead of one flat, uniform color per wall,
-          // which is what reads as "fake" on an otherwise flat block. Real
-          // per-facade detail (windows, a texture) would need a sprite
-          // pattern via fill-extrusion-pattern; there's no sprite sheet in
-          // this style yet, so this is the realism win available without one.
+          // real depth/shading instead of one flat, uniform color per wall.
           "fill-extrusion-vertical-gradient": true,
+          // A window-grid texture generated client-side from `colors.
+          // buildings` (see buildingPattern.ts) rather than a fixed sprite
+          // asset, which couldn't be recolored to match an arbitrary preset/
+          // user color. The caller (MapCanvas, the SDK's <Map>) is
+          // responsible for actually registering this image id via
+          // map.addImage()/registerWindowPattern() before the style loads —
+          // this just references it by name.
+          "fill-extrusion-pattern": BUILDING_PATTERN_ID,
         },
       },
     ];

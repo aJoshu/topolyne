@@ -11,5 +11,6 @@ export {
   type ContourSourceHandle,
 } from "./contours.js";
 export { searchLocation, zoomForBoundingBox, type GeocodeResult } from "./geocode.js";
+export { BUILDING_PATTERN_ID, buildWindowPatternImage, registerWindowPattern } from "./buildingPattern.js";
 export { fetchRoute, type RouteResult, type RoutingProfile } from "./directions.js";
 export * from "./colorUtils.js";

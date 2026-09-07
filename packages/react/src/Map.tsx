@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { MapConfig } from "@topolyne/config-schema";
-import { buildMapStyle, defaultProvider, setupContourSource, type MapProviderConfig } from "@topolyne/style-engine";
+import { buildMapStyle, defaultProvider, registerWindowPattern, setupContourSource, type MapProviderConfig } from "@topolyne/style-engine";
 import { fetchPublishedMap } from "./fetchPublishedMap.js";
 import { TopolyneMapContext } from "./context.js";
 
@@ -145,6 +145,7 @@ export function Map({
         map.once("style.load", () => {
           map?.setTerrain(mapStyle.terrain ?? null);
           map?.setSky(mapStyle.sky ?? {});
+          if (map) registerWindowPattern(map, config.colors.buildings);
         });
         setSkyState({ grain: config.sky.grainEnabled });
 
