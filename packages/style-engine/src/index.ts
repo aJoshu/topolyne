@@ -1,15 +1,15 @@
-export { buildMapStyle, type BuildStyleOptions } from "./buildStyle";
-export { presets, getPreset, configFromPreset, type Preset } from "./presets";
+export { buildMapStyle, type BuildStyleOptions } from "./buildStyle.js";
+export { presets, getPreset, configFromPreset, type Preset } from "./presets.js";
 export {
   defaultProvider,
   withProviderOverrides,
   type MapProviderConfig,
-} from "./providers";
+} from "./providers.js";
 export {
   setupContourSource,
   DEFAULT_CONTOUR_THRESHOLDS,
   type ContourSourceHandle,
-} from "./contours";
-export { searchLocation, zoomForBoundingBox, type GeocodeResult } from "./geocode";
-export { fetchRoute, type RouteResult, type RoutingProfile } from "./directions";
-export * from "./colorUtils";
+} from "./contours.js";
+export { searchLocation, zoomForBoundingBox, type GeocodeResult } from "./geocode.js";
+export { fetchRoute, type RouteResult, type RoutingProfile } from "./directions.js";
+export * from "./colorUtils.js";

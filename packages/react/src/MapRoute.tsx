@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import type maplibregl from "maplibre-gl";
-import { useTopolyneMap } from "./context";
-import { fetchRoute, type RoutingProfile } from "./fetchRoute";
+import { useTopolyneMap } from "./context.js";
+import { fetchRoute, type RoutingProfile } from "./fetchRoute.js";
 
 export interface MapRouteProps {
   /** [longitude, latitude] */

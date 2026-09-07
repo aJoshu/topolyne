@@ -1,6 +1,6 @@
 {
   "name": "@topolyne/react",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Beautiful, Terraink-inspired maps designed on topolyne.com, embedded with one React component.",
   "license": "MIT",
   "type": "module",

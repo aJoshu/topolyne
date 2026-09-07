@@ -1,8 +1,8 @@
 import type { LayerSpecification, SourceSpecification, StyleSpecification } from "maplibre-gl";
 import type { MapConfig } from "@topolyne/config-schema";
-import type { MapProviderConfig } from "./providers";
-import { darken, lighten, mix, readableInk, withAlpha } from "./colorUtils";
-import { DEFAULT_CONTOUR_THRESHOLDS, type ContourSourceHandle } from "./contours";
+import type { MapProviderConfig } from "./providers.js";
+import { darken, lighten, mix, readableInk, withAlpha } from "./colorUtils.js";
+import { DEFAULT_CONTOUR_THRESHOLDS, type ContourSourceHandle } from "./contours.js";
 
 export interface BuildStyleOptions {
   /**

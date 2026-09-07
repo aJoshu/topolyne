@@ -1,4 +1,4 @@
-import type { MapProviderConfig } from "./providers";
+import type { MapProviderConfig } from "./providers.js";
 
 export type RoutingProfile = "driving-car" | "cycling-regular" | "foot-walking";
 

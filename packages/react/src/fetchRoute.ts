@@ -1,4 +1,4 @@
-import { getApiBase } from "./fetchPublishedMap";
+import { getApiBase } from "./fetchPublishedMap.js";
 
 export type RoutingProfile = "driving-car" | "cycling-regular" | "foot-walking";
 

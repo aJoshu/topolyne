@@ -1,4 +1,4 @@
-import type { MapProviderConfig } from "./providers";
+import type { MapProviderConfig } from "./providers.js";
 
 /**
  * Thin wrapper around `maplibre-contour`'s `DemSource`. That library
@@ -29,7 +29,7 @@ export async function setupContourSource(
 ): Promise<ContourSourceHandle | undefined> {
   if (!provider.demTiles) return undefined;
   const key = provider.demTiles.tiles.join(",");
-  if (cached?.key === key) return cached.handle;
+  if (cached && cached.key === key) return cached.handle;
 
   // Dynamic import: browser-only (spins up a Web Worker), must never land in
   // a server bundle.

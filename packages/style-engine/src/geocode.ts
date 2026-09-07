@@ -1,4 +1,4 @@
-import type { MapProviderConfig } from "./providers";
+import type { MapProviderConfig } from "./providers.js";
 
 export interface GeocodeResult {
   label: string;
