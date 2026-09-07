@@ -317,6 +317,13 @@ function buildingLayers(config: MapConfig): LayerSpecification[] {
           // of 1 reads as glassy/see-through at the zooms buildings are
           // actually looked at.
           "fill-extrusion-opacity": ["interpolate", ["linear"], ["zoom"], 13, 0, 15, 1],
+          // A built-in top-to-bottom brightness falloff on each facade —
+          // real depth/shading instead of one flat, uniform color per wall,
+          // which is what reads as "fake" on an otherwise flat block. Real
+          // per-facade detail (windows, a texture) would need a sprite
+          // pattern via fill-extrusion-pattern; there's no sprite sheet in
+          // this style yet, so this is the realism win available without one.
+          "fill-extrusion-vertical-gradient": true,
         },
       },
     ];
