@@ -32,31 +32,16 @@ function closeCompactAttribution(map: maplibregl.Map) {
   map.once("idle", () => map.off("data", onData));
 }
 
-// Sun/grain are fabricated purely in CSS - MapLibre's sky spec has no
-// celestial rendering (no sun position, unlike Mapbox's atmosphere system),
-// and grain is a texture no vector-tile layer could produce anyway.
+// Grain is fabricated purely in CSS as a flat screen-space overlay — a
+// texture no vector-tile layer could produce anyway, and not something
+// baked onto the 3D terrain/building geometry underneath (a real per-surface
+// texture would need a custom WebGL layer).
 const NOISE_SVG =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E";
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E";
 
-function SkyOverlays({ showSun, showGrain }: { showSun: boolean; showGrain: boolean }) {
+function SkyOverlays({ showGrain }: { showGrain: boolean }) {
   return (
     <>
-      {showSun && (
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            top: "4%",
-            right: "10%",
-            width: 90,
-            height: 90,
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(255,244,214,0.95) 0%, rgba(255,220,150,0.5) 35%, rgba(255,220,150,0) 70%)",
-            filter: "blur(1px)",
-            pointerEvents: "none",
-          }}
-        />
-      )}
       {showGrain && (
         <div
           aria-hidden="true"
@@ -66,7 +51,7 @@ function SkyOverlays({ showSun, showGrain }: { showSun: boolean; showGrain: bool
             backgroundImage: `url("${NOISE_SVG}")`,
             backgroundRepeat: "repeat",
             mixBlendMode: "overlay",
-            opacity: 0.05,
+            opacity: 0.2,
             pointerEvents: "none",
           }}
         />
@@ -118,7 +103,7 @@ export function Map({
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
-  const [sky, setSkyState] = useState({ tilted: false, sun: false, grain: false });
+  const [sky, setSkyState] = useState({ grain: false });
 
   useEffect(() => {
     let cancelled = false;
@@ -161,12 +146,7 @@ export function Map({
           map?.setTerrain(mapStyle.terrain ?? null);
           map?.setSky(mapStyle.sky ?? {});
         });
-        const effectivePitch = pitch ?? config.location.pitch ?? 0;
-        setSkyState({
-          tilted: effectivePitch > 0,
-          sun: config.sky.sunEnabled,
-          grain: config.sky.grainEnabled,
-        });
+        setSkyState({ grain: config.sky.grainEnabled });
 
         mapRef.current = map;
         map.on("load", () => {
@@ -201,10 +181,7 @@ export function Map({
     if (!mapRef.current || !loaded) return;
     if (center) mapRef.current.setCenter(center);
     if (zoom !== undefined) mapRef.current.setZoom(zoom);
-    if (pitch !== undefined) {
-      mapRef.current.setPitch(pitch);
-      setSkyState((s) => ({ ...s, tilted: pitch > 0 }));
-    }
+    if (pitch !== undefined) mapRef.current.setPitch(pitch);
     if (bearing !== undefined) mapRef.current.setBearing(bearing);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [center?.[0], center?.[1], zoom, pitch, bearing, loaded]);
@@ -212,7 +189,7 @@ export function Map({
   return (
     <div className={className} style={{ position: "relative", ...style }}>
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
-      <SkyOverlays showSun={sky.tilted && sky.sun} showGrain={sky.grain} />
+      <SkyOverlays showGrain={sky.grain} />
       {error && (
         <div style={errorBannerStyle} role="alert">
           {error}
