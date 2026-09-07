@@ -59,6 +59,21 @@ export function buildMapStyle(
     sources.satellite = { type: "raster", url: provider.satelliteTiles.url, tileSize: 256 };
   }
 
+  if (config.markers.length > 0) {
+    sources.markers = {
+      type: "geojson",
+      data: {
+        type: "FeatureCollection",
+        features: config.markers.map((m) => ({
+          type: "Feature",
+          id: m.id,
+          geometry: { type: "Point", coordinates: [m.longitude, m.latitude] },
+          properties: { label: m.label },
+        })),
+      },
+    };
+  }
+
   const wantsContours = wantsTerrainSources && config.terrain.contours && !!options.contourSource;
   if (wantsContours && options.contourSource) {
     sources.contours = {
@@ -90,6 +105,9 @@ export function buildMapStyle(
     ...roadLayers(config),
     ...borderLayers(config),
     ...labelLayers(config),
+    // Always last — pins mark a specific spot for the person looking at the
+    // map, so they should never be hidden under roads/labels/buildings.
+    ...(config.markers.length > 0 ? markerLayers() : []),
   ];
 
   // Real 3D terrain (MapLibre deforming the mesh itself, not just a shaded
@@ -534,4 +552,44 @@ function labelLayers(config: MapConfig): LayerSpecification[] {
   }
 
   return layers;
+}
+
+/**
+ * A fixed pin style (not derived from the preset's palette, unlike every
+ * other layer here) — a marker is meant to stand out as "a specific place
+ * someone pointed to", legible against parchment, near-black navy, or raw
+ * satellite photo alike, not blend in with whatever theme is active.
+ */
+function markerLayers(): LayerSpecification[] {
+  return [
+    {
+      id: "marker-dot",
+      type: "circle",
+      source: "markers",
+      paint: {
+        "circle-radius": 6,
+        "circle-color": "#FF3B30",
+        "circle-stroke-width": 2,
+        "circle-stroke-color": "#ffffff",
+      },
+    },
+    {
+      id: "marker-label",
+      type: "symbol",
+      source: "markers",
+      filter: ["!=", ["get", "label"], ""],
+      layout: {
+        "text-field": ["get", "label"],
+        "text-font": ["Noto Sans Bold"],
+        "text-size": 12,
+        "text-anchor": "bottom",
+        "text-offset": [0, -1.2],
+      },
+      paint: {
+        "text-color": "#18181b",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.5,
+      },
+    },
+  ];
 }

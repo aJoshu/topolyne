@@ -85,6 +85,19 @@ export const skySchema = z.object({
   grainEnabled: z.boolean().default(false),
 });
 
+/** A single number of these places well on a 3D map — enough to mark up
+ * every stop on a small guided route without turning into visual noise, and
+ * small enough that a published map's style stays a fast, cacheable payload. */
+export const MAX_MARKERS = 20;
+
+export const markerSchema = z.object({
+  id: z.string(),
+  longitude: z.number().min(-180).max(180),
+  latitude: z.number().min(-85).max(85),
+  /** Shown above the pin. Empty is fine — a bare dot is still a valid marker. */
+  label: z.string().max(80).default(""),
+});
+
 export const mapConfigSchema = z.object({
   version: z.literal(CONFIG_FORMAT_VERSION).default(CONFIG_FORMAT_VERSION),
   /** id of the preset this design started from — kept even after edits, for provenance/UI */
@@ -98,6 +111,7 @@ export const mapConfigSchema = z.object({
   labels: labelsSchema,
   layers: layersSchema,
   sky: skySchema.default({}),
+  markers: z.array(markerSchema).max(MAX_MARKERS).default([]),
 });
 
 export type Location = z.infer<typeof locationSchema>;
@@ -108,6 +122,7 @@ export type Borders = z.infer<typeof bordersSchema>;
 export type Labels = z.infer<typeof labelsSchema>;
 export type Layers = z.infer<typeof layersSchema>;
 export type Sky = z.infer<typeof skySchema>;
+export type Marker = z.infer<typeof markerSchema>;
 export type MapConfig = z.infer<typeof mapConfigSchema>;
 
 /** What the public `/api/maps/:id` (and therefore the React SDK) actually returns. */

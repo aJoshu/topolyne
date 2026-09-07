@@ -270,5 +270,6 @@ export function configFromPreset(
     labels: preset.labels,
     layers: preset.layers,
     sky: preset.sky,
+    markers: [],
   };
 }
