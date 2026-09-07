@@ -49,7 +49,7 @@ export const presets: Preset[] = [
       scale: 1,
     },
     terrain: { enabled: true, hillshade: true, contours: true, intensity: 0.75 },
-    layers: { buildings: true, parks: true, water: true, buildings3d: false },
+    layers: { buildings: true, parks: true, water: true, buildings3d: true },
     borders: { country: true, region: false },
     labels: { cities: true, roads: false, poi: false, scale: 1 },
     sky: { color: "#A8D5E8", horizonColor: "#F5EFE0", sunEnabled: false, grainEnabled: false },
@@ -57,7 +57,7 @@ export const presets: Preset[] = [
   {
     id: "midnight-terrain",
     name: "Midnight Terrain",
-    description: "Near-black navy with gold glowing roads and moonlit relief — luxury atlas mood, real elevation underneath.",
+    description: "Near-black navy with gold glowing roads — luxury atlas mood, flat and quiet.",
     swatches: ["#0B1220", "#081019", "#E8B04B"],
     colors: {
       background: "#0B1220",
@@ -75,7 +75,7 @@ export const presets: Preset[] = [
       glow: true,
       scale: 1,
     },
-    terrain: { enabled: true, hillshade: true, contours: true, intensity: 0.5 },
+    terrain: { enabled: false, hillshade: false, contours: false, intensity: 0 },
     layers: { buildings: true, parks: true, water: true, buildings3d: false },
     borders: { country: true, region: false },
     labels: { cities: true, roads: false, poi: false, scale: 1 },
