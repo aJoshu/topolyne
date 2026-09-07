@@ -98,7 +98,7 @@ Directory** to `apps/web` when importing it on Vercel and the rest is picked up 
 
 ## MVP scope (see `PLAN.md` for what's deliberately deferred)
 
-Four real presets (`Terrain`, `Midnight Terrain`, `Paper Atlas`, `Slate`), live-editing with no
+Three real presets (`Terrain`, `Midnight Terrain`, `Sandstone`), live-editing with no
 "Apply" button, save vs. publish as distinct steps, a public `/api/maps/:id` the SDK polls with
 short-TTL caching (so published edits reach embeds without a redeploy), and markers via
 `<MapMarker>`. No auth, billing, teams, directions, or native SDKs yet — intentionally.

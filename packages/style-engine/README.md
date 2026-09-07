@@ -41,10 +41,9 @@ getPreset("terrain");    // Preset — throws if the id is unknown
 configFromPreset("terrain", location, "My trip");  // MapConfig
 ```
 
-Eight built-in presets ship today — `terrain`, `midnight-terrain`, `paper-atlas`, `slate`,
-`sandstone`, `arctic`, `neon-grid`, `forest-canopy` — each a distinct design decision across
-palette, road treatment, terrain relief, and border/label density, not one template with the
-background color swapped. A `Preset` carries `id`, `name`, `description`, three `swatches` for
+Three built-in presets ship today — `terrain`, `midnight-terrain`, `sandstone` — each a distinct
+design decision across palette, road treatment, terrain relief, and border/label density, not one
+template with the background color swapped. A `Preset` carries `id`, `name`, `description`, three `swatches` for
 a thumbnail, and the same `colors`/`roads`/`terrain`/`layers`/`borders`/`labels` shape a
 `MapConfig` uses. `configFromPreset(presetId, location, name?)` builds a full `MapConfig` by
 applying a preset to a searched-to location.

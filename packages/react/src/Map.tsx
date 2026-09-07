@@ -8,6 +8,18 @@ import { buildMapStyle, defaultProvider, setupContourSource, type MapProviderCon
 import { fetchPublishedMap } from "./fetchPublishedMap";
 import { TopolyneMapContext } from "./context";
 
+/**
+ * MapLibre's "compact" attribution control actually starts *open* (full
+ * "OpenFreeMap | OpenMapTiles | © OpenStreetMap contributors" text visible)
+ * despite the name — it only collapses to just the (i) icon after the first
+ * mouseout. This forces it collapsed from the start instead.
+ */
+function closeCompactAttribution(map: maplibregl.Map) {
+  const el = map.getContainer().querySelector(".maplibregl-ctrl-attrib");
+  el?.removeAttribute("open");
+  el?.classList.remove("maplibregl-compact-show");
+}
+
 export interface MapProps {
   /** The id you got back from "Publish" in the Topolyne editor, e.g. "map_x7K92dsA". */
   mapId: string;
@@ -79,6 +91,7 @@ export function Map({
           interactive,
           attributionControl: { compact: true },
         });
+        closeCompactAttribution(map);
 
         mapRef.current = map;
         map.on("load", () => {
