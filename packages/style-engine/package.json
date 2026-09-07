@@ -1,6 +1,6 @@
 {
   "name": "@topolyne/style-engine",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Translates a Topolyne semantic map config into a real MapLibre GL style \u2014 the design engine behind every Topolyne map.",
   "license": "MIT",
   "type": "module",
