@@ -17,12 +17,13 @@ export interface Preset {
 }
 
 /**
- * Three presets, each a genuinely different design decision across every
+ * Eight presets, each a genuinely different design decision across every
  * dimension (palette, road treatment, whether terrain relief is even part of
- * the look, border/label density) — not a single template with the
- * background colour swapped. `Terrain` and `Midnight Terrain` lean on real
- * hillshade + contour relief, which is the concrete capability Terraink's
- * own output does not have.
+ * the look, border/label density, and now 3D buildings + road/label scale) —
+ * not a single template with the background colour swapped. `Terrain`,
+ * `Midnight Terrain`, `Forest Canopy` and `Arctic` lean on real hillshade +
+ * contour relief, which is the concrete capability Terraink's own output
+ * does not have. `Neon Grid` leans on real 3D building extrusion instead.
  */
 export const presets: Preset[] = [
   {
@@ -78,6 +79,58 @@ export const presets: Preset[] = [
     labels: { cities: true, roads: false, poi: false, scale: 1 },
   },
   {
+    id: "paper-atlas",
+    name: "Paper Atlas",
+    description: "Cream paper and ink linework, contour lines only — no shading, the way a printed atlas plate reads.",
+    swatches: ["#F7F2E7", "#CFE0DE", "#3B3226"],
+    colors: {
+      background: "#F7F2E7",
+      land: "#F1EAD8",
+      water: "#CFE0DE",
+      parks: "#DCE3C8",
+      buildings: "#E7DCC0",
+    },
+    roads: {
+      visible: true,
+      motorway: "#3B3226",
+      primary: "#4F4536",
+      secondary: "#8B7F68",
+      local: "#B8AD97",
+      glow: false,
+      scale: 1,
+    },
+    terrain: { enabled: true, hillshade: false, contours: true, intensity: 0.35 },
+    layers: { buildings: true, parks: true, water: true, buildings3d: false },
+    borders: { country: true, region: true },
+    labels: { cities: true, roads: false, poi: false, scale: 1 },
+  },
+  {
+    id: "slate",
+    name: "Slate",
+    description: "Cool monochrome, flat by design — for dashboards and product UI where the map should stay quiet.",
+    swatches: ["#F5F6F7", "#D7DEE3", "#2B3440"],
+    colors: {
+      background: "#F5F6F7",
+      land: "#EDEFF1",
+      water: "#D7DEE3",
+      parks: "#E3E7E1",
+      buildings: "#E1E4E7",
+    },
+    roads: {
+      visible: true,
+      motorway: "#2B3440",
+      primary: "#4B5563",
+      secondary: "#94A0AC",
+      local: "#C4CBD2",
+      glow: false,
+      scale: 1,
+    },
+    terrain: { enabled: false, hillshade: false, contours: false, intensity: 0 },
+    layers: { buildings: true, parks: true, water: true, buildings3d: false },
+    borders: { country: true, region: false },
+    labels: { cities: true, roads: false, poi: false, scale: 1 },
+  },
+  {
     id: "sandstone",
     name: "Sandstone",
     description: "Warm ochre and rust across dry terrain — canyon country, sun-baked and quiet.",
@@ -101,6 +154,84 @@ export const presets: Preset[] = [
     terrain: { enabled: true, hillshade: true, contours: false, intensity: 0.6 },
     layers: { buildings: true, parks: true, water: true, buildings3d: false },
     borders: { country: true, region: false },
+    labels: { cities: true, roads: false, poi: false, scale: 1 },
+  },
+  {
+    id: "arctic",
+    name: "Arctic",
+    description: "Near-white ice tones with the faintest relief — built for cold, high-latitude places.",
+    swatches: ["#F4FAFC", "#BFE0EC", "#3A6EA5"],
+    colors: {
+      background: "#F4FAFC",
+      land: "#E7F2F6",
+      water: "#BFE0EC",
+      parks: "#DCEDE7",
+      buildings: "#D7E6EC",
+    },
+    roads: {
+      visible: true,
+      motorway: "#3A6EA5",
+      primary: "#5A87B5",
+      secondary: "#8FAFC9",
+      local: "#C3D6E2",
+      glow: false,
+      scale: 0.85,
+    },
+    terrain: { enabled: true, hillshade: true, contours: true, intensity: 0.3 },
+    layers: { buildings: true, parks: true, water: true, buildings3d: false },
+    borders: { country: true, region: false },
+    labels: { cities: true, roads: false, poi: false, scale: 0.95 },
+  },
+  {
+    id: "neon-grid",
+    name: "Neon Grid",
+    description: "Near-black with glowing neon roads and real 3D buildings — a city map for after dark.",
+    swatches: ["#05040A", "#00E5FF", "#FF2ED1"],
+    colors: {
+      background: "#05040A",
+      land: "#0D0B1A",
+      water: "#0A0818",
+      parks: "#0F1A14",
+      buildings: "#171330",
+    },
+    roads: {
+      visible: true,
+      motorway: "#FF2ED1",
+      primary: "#00E5FF",
+      secondary: "#7B61FF",
+      local: "#3A3560",
+      glow: true,
+      scale: 1.1,
+    },
+    terrain: { enabled: false, hillshade: false, contours: false, intensity: 0 },
+    layers: { buildings: true, parks: true, water: true, buildings3d: true },
+    borders: { country: false, region: false },
+    labels: { cities: true, roads: false, poi: true, scale: 1.05 },
+  },
+  {
+    id: "forest-canopy",
+    name: "Forest Canopy",
+    description: "Deep canopy greens with strong mountain relief — for wooded, mountainous terrain.",
+    swatches: ["#1B2B1E", "#2E4A2A", "#D9A441"],
+    colors: {
+      background: "#1B2B1E",
+      land: "#213823",
+      water: "#16302E",
+      parks: "#2E4A2A",
+      buildings: "#3A3226",
+    },
+    roads: {
+      visible: true,
+      motorway: "#D9A441",
+      primary: "#C68A38",
+      secondary: "#8F6B34",
+      local: "#4F4530",
+      glow: false,
+      scale: 1,
+    },
+    terrain: { enabled: true, hillshade: true, contours: true, intensity: 0.7 },
+    layers: { buildings: true, parks: true, water: true, buildings3d: false },
+    borders: { country: true, region: true },
     labels: { cities: true, roads: false, poi: false, scale: 1 },
   },
 ];
