@@ -74,8 +74,14 @@ export const defaultProvider: MapProviderConfig = {
   },
   glyphsUrl: "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
   spriteUrl: undefined,
+  // "OpenFreeMap" (the tile host) is explicitly optional to display per
+  // their own attribution docs — only OpenMapTiles and OpenStreetMap credit
+  // is actually required, since OSM's data license (ODbL) mandates it
+  // wherever the data is shown. Swap the host's name for ours instead.
   attribution:
-    '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors',
+    '© <a href="https://www.openmaptiles.org/" target="_blank">OpenMapTiles</a> ' +
+    '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors ' +
+    '· <a href="https://topolyne.com" target="_blank">Topolyne</a>',
 };
 
 export function withProviderOverrides(overrides: Partial<MapProviderConfig>): MapProviderConfig {

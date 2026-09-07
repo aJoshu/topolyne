@@ -81,7 +81,7 @@ export const skySchema = z.object({
   color: z.string().default("#87CEEB"),
   horizonColor: z.string().default("#FFFFFF"),
   sunEnabled: z.boolean().default(false),
-  starsEnabled: z.boolean().default(false),
+  grainEnabled: z.boolean().default(false),
 });
 
 export const mapConfigSchema = z.object({

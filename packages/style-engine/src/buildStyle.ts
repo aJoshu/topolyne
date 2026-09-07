@@ -34,6 +34,12 @@ export function buildMapStyle(
       ...("url" in provider.vectorTiles
         ? { url: provider.vectorTiles.url }
         : { tiles: provider.vectorTiles.tiles, maxzoom: provider.vectorTiles.maxzoom ?? 14 }),
+      // Overrides whatever attribution the TileJSON at that url carries
+      // (OpenFreeMap's default reads "OpenFreeMap © OpenMapTiles Data from
+      // OpenStreetMap") with our own wording. The OpenMapTiles/OpenStreetMap
+      // credit itself stays — OSM's ODbL license requires it wherever the
+      // data is displayed — only the "OpenFreeMap" host name is dropped.
+      attribution: provider.attribution,
     },
   };
 
@@ -107,7 +113,15 @@ export function buildMapStyle(
     // rather than real mountains, so intensity only stretches into that
     // moderate range instead of all the way to 3x.
     ...(wantsRealTerrain ? { terrain: { source: "dem", exaggeration: 1 + config.terrain.intensity * 0.8 } } : {}),
-    ...(wantsSky ? { sky: { "sky-color": config.sky.color, "horizon-color": config.sky.horizonColor } } : {}),
+    // MapLibre's sky spec has a separate `fog-color` for the atmospheric
+    // haze blended toward the ground at distance — distinct from
+    // `horizon-color`, which is just the color at the horizon line. Left
+    // unset it defaults to white, which reads as a bright haze cutting
+    // across an otherwise dark tilted map; tying it to horizonColor keeps
+    // the distance fade the same tone as the rest of the sky.
+    ...(wantsSky
+      ? { sky: { "sky-color": config.sky.color, "horizon-color": config.sky.horizonColor, "fog-color": config.sky.horizonColor } }
+      : {}),
   };
 }
 

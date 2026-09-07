@@ -32,62 +32,15 @@ function closeCompactAttribution(map: maplibregl.Map) {
   map.once("idle", () => map.off("data", onData));
 }
 
-// Sun/stars/grain are fabricated purely in CSS - MapLibre's sky spec has no
-// celestial rendering (no sun position, no stars, unlike Mapbox's atmosphere
-// system), and grain is a texture no vector-tile layer could produce anyway.
+// Sun/grain are fabricated purely in CSS - MapLibre's sky spec has no
+// celestial rendering (no sun position, unlike Mapbox's atmosphere system),
+// and grain is a texture no vector-tile layer could produce anyway.
 const NOISE_SVG =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E";
-const STAR_DOTS = [
-  "6px 12px", "34px 40px", "70px 8px", "98px 55px", "130px 20px", "160px 60px", "190px 15px", "210px 75px",
-  "18px 90px", "55px 120px", "88px 100px", "120px 140px", "150px 105px", "180px 130px", "205px 150px",
-].map((pos) => `radial-gradient(1.4px 1.4px at ${pos}, white, transparent)`).join(", ");
 
-function SkyOverlays({
-  showStars,
-  showSun,
-  bearing = 0,
-}: {
-  showStars: boolean;
-  showSun: boolean;
-  bearing?: number;
-}) {
+function SkyOverlays({ showSun, showGrain }: { showSun: boolean; showGrain: boolean }) {
   return (
     <>
-      {showStars && (
-        // Clipped to a smaller top slice and overflow:hidden on an oversized
-        // rotated inner layer, so spinning the map never reveals an empty
-        // corner. Rotating with bearing at least *looks* responsive, since a
-        // flat overlay has no real notion of which way the map is pointed;
-        // it also can't occlude behind buildings/terrain reaching into frame
-        // without a real WebGL layer, which this deliberately isn't.
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            inset: 0,
-            height: "28%",
-            overflow: "hidden",
-            maskImage: "linear-gradient(to bottom, black, transparent)",
-            WebkitMaskImage: "linear-gradient(to bottom, black, transparent)",
-            pointerEvents: "none",
-          }}
-        >
-          <div
-            style={{
-              position: "absolute",
-              top: "-50%",
-              left: "-50%",
-              width: "200%",
-              height: "200%",
-              backgroundImage: STAR_DOTS,
-              backgroundSize: "220px 160px",
-              backgroundRepeat: "repeat",
-              transform: `rotate(${bearing}deg)`,
-              opacity: 0.8,
-            }}
-          />
-        </div>
-      )}
       {showSun && (
         <div
           aria-hidden="true"
@@ -104,18 +57,20 @@ function SkyOverlays({
           }}
         />
       )}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage: `url("${NOISE_SVG}")`,
-          backgroundRepeat: "repeat",
-          mixBlendMode: "overlay",
-          opacity: 0.05,
-          pointerEvents: "none",
-        }}
-      />
+      {showGrain && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `url("${NOISE_SVG}")`,
+            backgroundRepeat: "repeat",
+            mixBlendMode: "overlay",
+            opacity: 0.05,
+            pointerEvents: "none",
+          }}
+        />
+      )}
     </>
   );
 }
@@ -163,7 +118,7 @@ export function Map({
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
-  const [sky, setSkyState] = useState({ tilted: false, stars: false, sun: false, bearing: 0 });
+  const [sky, setSkyState] = useState({ tilted: false, sun: false, grain: false });
 
   useEffect(() => {
     let cancelled = false;
@@ -207,12 +162,10 @@ export function Map({
           map?.setSky(mapStyle.sky ?? {});
         });
         const effectivePitch = pitch ?? config.location.pitch ?? 0;
-        const effectiveBearing = bearing ?? config.location.bearing ?? 0;
         setSkyState({
           tilted: effectivePitch > 0,
-          stars: config.sky.starsEnabled,
           sun: config.sky.sunEnabled,
-          bearing: effectiveBearing,
+          grain: config.sky.grainEnabled,
         });
 
         mapRef.current = map;
@@ -252,17 +205,14 @@ export function Map({
       mapRef.current.setPitch(pitch);
       setSkyState((s) => ({ ...s, tilted: pitch > 0 }));
     }
-    if (bearing !== undefined) {
-      mapRef.current.setBearing(bearing);
-      setSkyState((s) => ({ ...s, bearing }));
-    }
+    if (bearing !== undefined) mapRef.current.setBearing(bearing);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [center?.[0], center?.[1], zoom, pitch, bearing, loaded]);
 
   return (
     <div className={className} style={{ position: "relative", ...style }}>
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
-      <SkyOverlays showStars={sky.tilted && sky.stars} showSun={sky.tilted && sky.sun} bearing={sky.bearing} />
+      <SkyOverlays showSun={sky.tilted && sky.sun} showGrain={sky.grain} />
       {error && (
         <div style={errorBannerStyle} role="alert">
           {error}

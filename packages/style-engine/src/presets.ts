@@ -52,7 +52,7 @@ export const presets: Preset[] = [
     layers: { buildings: true, parks: true, water: true, buildings3d: false },
     borders: { country: true, region: false },
     labels: { cities: true, roads: false, poi: false, scale: 1 },
-    sky: { color: "#A8D5E8", horizonColor: "#F5EFE0", sunEnabled: false, starsEnabled: false },
+    sky: { color: "#A8D5E8", horizonColor: "#F5EFE0", sunEnabled: false, grainEnabled: false },
   },
   {
     id: "midnight-terrain",
@@ -79,7 +79,7 @@ export const presets: Preset[] = [
     layers: { buildings: true, parks: true, water: true, buildings3d: false },
     borders: { country: true, region: false },
     labels: { cities: true, roads: false, poi: false, scale: 1 },
-    sky: { color: "#050914", horizonColor: "#1A2740", sunEnabled: false, starsEnabled: true },
+    sky: { color: "#050914", horizonColor: "#1A2740", sunEnabled: false, grainEnabled: false },
   },
   {
     id: "paper-atlas",
@@ -106,7 +106,7 @@ export const presets: Preset[] = [
     layers: { buildings: true, parks: true, water: true, buildings3d: false },
     borders: { country: true, region: true },
     labels: { cities: true, roads: false, poi: false, scale: 1 },
-    sky: { color: "#DCE8E6", horizonColor: "#F7F2E7", sunEnabled: false, starsEnabled: false },
+    sky: { color: "#DCE8E6", horizonColor: "#F7F2E7", sunEnabled: false, grainEnabled: false },
   },
   {
     id: "slate",
@@ -133,7 +133,7 @@ export const presets: Preset[] = [
     layers: { buildings: true, parks: true, water: true, buildings3d: false },
     borders: { country: true, region: false },
     labels: { cities: true, roads: false, poi: false, scale: 1 },
-    sky: { color: "#D7DEE3", horizonColor: "#F5F6F7", sunEnabled: false, starsEnabled: false },
+    sky: { color: "#D7DEE3", horizonColor: "#F5F6F7", sunEnabled: false, grainEnabled: false },
   },
   {
     id: "sandstone",
@@ -160,7 +160,7 @@ export const presets: Preset[] = [
     layers: { buildings: true, parks: true, water: true, buildings3d: false },
     borders: { country: true, region: false },
     labels: { cities: true, roads: false, poi: false, scale: 1 },
-    sky: { color: "#F5D9A8", horizonColor: "#F2E2C8", sunEnabled: true, starsEnabled: false },
+    sky: { color: "#F5D9A8", horizonColor: "#F2E2C8", sunEnabled: true, grainEnabled: false },
   },
   {
     id: "arctic",
@@ -187,7 +187,7 @@ export const presets: Preset[] = [
     layers: { buildings: true, parks: true, water: true, buildings3d: false },
     borders: { country: true, region: false },
     labels: { cities: true, roads: false, poi: false, scale: 0.95 },
-    sky: { color: "#DCEEF7", horizonColor: "#F4FAFC", sunEnabled: false, starsEnabled: false },
+    sky: { color: "#DCEEF7", horizonColor: "#F4FAFC", sunEnabled: false, grainEnabled: false },
   },
   {
     id: "neon-grid",
@@ -214,7 +214,7 @@ export const presets: Preset[] = [
     layers: { buildings: true, parks: true, water: true, buildings3d: true },
     borders: { country: false, region: false },
     labels: { cities: true, roads: false, poi: true, scale: 1.05 },
-    sky: { color: "#050208", horizonColor: "#0D0B1A", sunEnabled: false, starsEnabled: true },
+    sky: { color: "#050208", horizonColor: "#0D0B1A", sunEnabled: false, grainEnabled: false },
   },
   {
     id: "forest-canopy",
@@ -241,7 +241,7 @@ export const presets: Preset[] = [
     layers: { buildings: true, parks: true, water: true, buildings3d: false },
     borders: { country: true, region: true },
     labels: { cities: true, roads: false, poi: false, scale: 1 },
-    sky: { color: "#3A5A45", horizonColor: "#213823", sunEnabled: false, starsEnabled: false },
+    sky: { color: "#3A5A45", horizonColor: "#213823", sunEnabled: false, grainEnabled: false },
   },
 ];
 
