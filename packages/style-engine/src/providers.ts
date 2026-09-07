@@ -22,6 +22,13 @@ export interface MapProviderConfig {
    * contour features degrade gracefully (flat map, no crash).
    */
   demTiles?: { tiles: string[]; encoding: "mapbox" | "terrarium"; maxzoom: number };
+  /**
+   * Raster satellite/aerial imagery, as a TileJSON endpoint — MapLibre fetches
+   * it to discover the actual tile URL template/extension/maxzoom itself,
+   * so this doesn't need to hardcode a specific tileset version. Reuses
+   * whatever key already unlocks `demTiles`, not a separate paid provider.
+   */
+  satelliteTiles?: { url: string };
   /** Nominatim-compatible geocoding endpoint, kept separate from the map/DEM providers. */
   geocode: { baseUrl: string; appName: string };
   /**
@@ -64,6 +71,9 @@ export const defaultProvider: MapProviderConfig = {
         encoding: "mapbox",
         maxzoom: 12,
       }
+    : undefined,
+  satelliteTiles: MAPTILER_KEY
+    ? { url: `https://api.maptiler.com/tiles/satellite-v2/tiles.json?key=${MAPTILER_KEY}` }
     : undefined,
   geocode: {
     baseUrl: "https://nominatim.openstreetmap.org",

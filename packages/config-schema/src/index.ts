@@ -27,6 +27,8 @@ export const terrainSchema = z.object({
   contours: z.boolean().default(false),
   /** 0 = flat/off-feeling, 1 = maximum relief for the active preset's lighting design */
   intensity: z.number().min(0).max(1).default(0.6),
+  /** Real aerial/satellite imagery as the base layer instead of styled vector colors — roads/borders/labels/buildings still render on top. Needs the same terrain-RGB provider key as elevation. */
+  satellite: z.boolean().default(false),
 });
 
 export const colorsSchema = z.object({

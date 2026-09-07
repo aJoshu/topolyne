@@ -54,6 +54,11 @@ export function buildMapStyle(
     };
   }
 
+  const wantsSatellite = config.terrain.satellite && !!provider.satelliteTiles;
+  if (wantsSatellite && provider.satelliteTiles) {
+    sources.satellite = { type: "raster", url: provider.satelliteTiles.url, tileSize: 256 };
+  }
+
   const wantsContours = wantsTerrainSources && config.terrain.contours && !!options.contourSource;
   if (wantsContours && options.contourSource) {
     sources.contours = {
@@ -71,9 +76,15 @@ export function buildMapStyle(
   }
 
   const layers: LayerSpecification[] = [
-    ...backgroundLayers(config),
-    ...(wantsTerrainSources ? hillshadeLayers(config) : []),
-    ...areaLayers(config),
+    ...backgroundLayers(config, wantsSatellite),
+    ...(wantsSatellite ? [satelliteLayer()] : []),
+    // Hillshade is a synthetic shaded-relief tint; real satellite imagery
+    // already shows actual shading, so layering both muddies the photo.
+    // Landcover/landuse/water/park fills would likewise just paint flat
+    // color over real imagery — skip those too, matching how Google/Apple's
+    // own "hybrid" satellite view drops fills but keeps roads/labels/buildings.
+    ...(wantsTerrainSources && !wantsSatellite ? hillshadeLayers(config) : []),
+    ...(wantsSatellite ? [] : areaLayers(config)),
     ...(wantsContours ? contourLayers(config) : []),
     ...buildingLayers(config),
     ...roadLayers(config),
@@ -125,13 +136,18 @@ export function buildMapStyle(
   };
 }
 
-function backgroundLayers(config: MapConfig): LayerSpecification[] {
+function backgroundLayers(config: MapConfig, satellite: boolean): LayerSpecification[] {
+  const background: LayerSpecification = {
+    id: "background",
+    type: "background",
+    paint: { "background-color": config.colors.background },
+  };
+  // Satellite imagery is its own base layer (added separately, right after
+  // this) — the styled landcover/landuse fills would just paint flat color
+  // over real photo underneath it.
+  if (satellite) return [background];
   return [
-    {
-      id: "background",
-      type: "background",
-      paint: { "background-color": config.colors.background },
-    },
+    background,
     {
       id: "landcover",
       type: "fill",
@@ -147,6 +163,10 @@ function backgroundLayers(config: MapConfig): LayerSpecification[] {
       paint: { "fill-color": mix(config.colors.land, config.colors.background, 0.3), "fill-opacity": 0.6 },
     },
   ];
+}
+
+function satelliteLayer(): LayerSpecification {
+  return { id: "satellite", type: "raster", source: "satellite" };
 }
 
 function hillshadeLayers(config: MapConfig): LayerSpecification[] {
@@ -274,7 +294,11 @@ function buildingLayers(config: MapConfig): LayerSpecification[] {
           // fallback so those don't render as flat (height 0) extrusions.
           "fill-extrusion-height": ["coalesce", ["get", "render_height"], 6],
           "fill-extrusion-base": ["coalesce", ["get", "render_min_height"], 0],
-          "fill-extrusion-opacity": ["interpolate", ["linear"], ["zoom"], 13, 0, 15, 0.92],
+          // Fades in over zoom 13-15 so buildings don't just pop into
+          // existence, but reaches fully opaque (not 0.92) — anything short
+          // of 1 reads as glassy/see-through at the zooms buildings are
+          // actually looked at.
+          "fill-extrusion-opacity": ["interpolate", ["linear"], ["zoom"], 13, 0, 15, 1],
         },
       },
     ];
