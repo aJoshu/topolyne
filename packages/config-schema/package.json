@@ -1,6 +1,6 @@
 {
   "name": "@topolyne/config-schema",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "The semantic map-config schema shared by Topolyne's editor, storage, and React SDK.",
   "license": "MIT",
   "type": "module",

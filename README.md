@@ -79,6 +79,7 @@ the private `topolyne-app` repo.
 
 ## MVP scope (see `PLAN.md` for what's deliberately deferred)
 
-Three real presets (`Terrain`, `Midnight Terrain`, `Sandstone`), a public `/api/maps/:id` the SDK
-polls with short-TTL caching, and markers via `<MapMarker>`. No auth, billing, teams, or native
-SDKs in this repo — that's the hosted app's concern.
+Eight real presets (`Terrain`, `Midnight Terrain`, `Paper Atlas`, `Slate`, `Sandstone`, `Arctic`,
+`Neon Grid`, `Forest Canopy`), a public `/api/maps/:id` the SDK polls with short-TTL caching, and
+markers via `<MapMarker>`. No auth, billing, teams, or native SDKs in this repo — that's the
+hosted app's concern.

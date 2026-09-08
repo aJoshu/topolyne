@@ -45,6 +45,8 @@ interface MapConfig {
   borders: Borders;
   labels: Labels;
   layers: Layers;
+  sky: Sky;
+  markers: Marker[];      // max 20, see MAX_MARKERS
 }
 ```
 
@@ -55,12 +57,16 @@ input and/or annotate your own code with the same shape:
 | Type | Fields |
 | --- | --- |
 | `Location` | `longitude` (-180 to 180), `latitude` (-85 to 85), `zoom` (0-22), `pitch` (0-85, default 0), `bearing` (-180 to 180, default 0) |
-| `Terrain` | `enabled`, `hillshade`, `contours` (booleans, default true/true/false), `intensity` (0-1, default 0.6) |
+| `Terrain` | `enabled`, `hillshade` (booleans, default true/true), `contours` (default false), `intensity` (0-1, default 0.6), `satellite` (default false — real aerial imagery as the base layer instead of styled colors) |
 | `Colors` | `background`, `land`, `water`, `parks`, `buildings` — hex color strings |
 | `Roads` | `visible` (default true), `motorway`, `primary`, `secondary`, `local` (hex colors), `glow` (default false), `scale` (0.5-2, default 1) |
 | `Borders` | `country` (default true), `region` (default false) |
 | `Labels` | `cities` (default true), `roads` (default false), `poi` (default false), `scale` (0.7-1.5, default 1) |
 | `Layers` | `buildings` (default true), `parks` (default true), `water` (default true), `buildings3d` (default false) |
+| `Sky` | `color` (default `#87CEEB`), `horizonColor` (default `#FFFFFF`), `grainEnabled` (default false) — only visible once the map is tilted |
+| `Marker` | `id`, `longitude` (-180 to 180), `latitude` (-85 to 85), `label` (max 80 chars, default `""`) |
+
+`MAX_MARKERS` (currently `20`) is the cap `mapConfigSchema` enforces on `markers.length`.
 
 `CONFIG_FORMAT_VERSION` (currently `1`) is the literal value `MapConfig["version"]` is pinned
 to — bump it if the schema ever needs a breaking change, so old and new configs can be told

@@ -20,6 +20,12 @@ export default function Page() {
 
 ## Markers
 
+Pins placed in the Topolyne editor (up to 20 per map) are baked into the published design and
+render automatically — you don't need any code for those, they show up the moment `<Map>` loads.
+
+`<MapMarker>` is for markers *you* add at runtime that aren't part of the saved design — a
+user's current location, a search result, anything driven by your own app state:
+
 ```tsx
 import { Map, MapMarker } from "@topolyne/react";
 
@@ -29,6 +35,23 @@ import { Map, MapMarker } from "@topolyne/react";
 ```
 
 `<MapMarker>` must be rendered inside `<Map>`. Pass children to render your own marker element instead of the default pin.
+
+## Routes
+
+```tsx
+import { Map, MapRoute } from "@topolyne/react";
+
+<Map mapId="map_Nvm9w6Wn9d" style={{ width: "100%", height: "500px" }}>
+  <MapRoute
+    origin={[-5.9301, 54.5964]}
+    destination={[-5.9081, 54.6031]}
+    profile="foot-walking"
+    onRoute={({ distanceMeters, durationSeconds }) => console.log(distanceMeters, durationSeconds)}
+  />
+</Map>;
+```
+
+`<MapRoute>` must be rendered inside `<Map>`. Draws a real routed path between two points (turn-by-turn directions, not a straight line), fetched through Topolyne's own backend so no routing API key ever reaches the browser. `profile` defaults to `"driving-car"` — `"cycling-regular"` and `"foot-walking"` are also available. `waypoints` adds stops in between. `color`/`width` style the line; `onError` fires if directions aren't configured on the backend.
 
 ## Reading the underlying map instance
 
@@ -59,6 +82,20 @@ function FlyToButton() {
 | `onLoad` | `(map: maplibregl.Map) => void` | — | Called once the map has loaded. |
 | `provider` | `MapProviderConfig` | — | Escape hatch for pointing tile/terrain sources at a self-hosted Topolyne instance. Most apps never set this. |
 
+## Self-hosting
+
+```tsx
+import { configureTopolyne } from "@topolyne/react";
+
+configureTopolyne({ apiBaseUrl: "https://your-topolyne-instance.com" });
+```
+
+Points the SDK at a different Topolyne instance — a local dev server while building against Topolyne itself, or a self-hosted deployment. Almost no app needs this; by default the SDK talks to `https://topolyne.com`.
+
+## Interacting with a published map
+
+Middle-click-drag (or the equivalent touch gesture) tilts and rotates the map — the same affordance the Topolyne editor's own preview has. This is automatic on every interactive `<Map>`; there's no prop for it.
+
 ## Requirements
 
 - React 18 or later (`react` and `react-dom` are peer dependencies)
@@ -66,7 +103,7 @@ function FlyToButton() {
 
 ## Attribution
 
-Topolyne's maps are built on [OpenFreeMap](https://openfreemap.org/) and [OpenMapTiles](https://www.openmaptiles.org/), with data from [OpenStreetMap](https://www.openstreetmap.org/copyright). `<Map>` shows the required attribution automatically — please don't remove it.
+`<Map>` shows a small attribution control automatically (© OpenMapTiles, © OpenStreetMap contributors, a Topolyne link) — this is legally required by OpenStreetMap's data license wherever the map is shown, so please don't remove or hide it.
 
 ## License
 
