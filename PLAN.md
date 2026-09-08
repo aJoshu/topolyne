@@ -44,19 +44,22 @@ schema.
 
 ## Architecture
 
-pnpm workspace:
+This repo (the public SDK) is one half of a two-repo split:
 
 ```
-apps/web            Next.js app — marketing/hero, auth-stubbed dashboard, editor, /api routes
 packages/config-schema   TypeScript types + zod schema for the public map config format
 packages/style-engine    config -> MapLibre style JSON translator + preset definitions
 packages/react           @topolyne/react — <Map mapId /> + <MapMarker>, framework-agnostic core in style-engine
 ```
 
+The hosted editor/dashboard (Next.js app — marketing/hero, auth, editor, dashboard, /api routes)
+lives in a separate private repo (`topolyne-app`) and depends on these packages like any other
+consumer.
+
 The **map config format** is our own JSON (location, terrain, colors, roads, water, buildings,
-parks, borders, labels) — never raw MapLibre style JSON over the wire. `style-engine` is the only
-thing that knows MapLibre/OpenMapTiles layer names; both the editor and the React SDK import it,
-so "the config means the same thing everywhere" and we can swap providers later.
+parks, borders, labels, markers) — never raw MapLibre style JSON over the wire. `style-engine` is
+the only thing that knows MapLibre/OpenMapTiles layer names; both the hosted editor and the React
+SDK import it, so "the config means the same thing everywhere" and we can swap providers later.
 
 Storage: SQLite via Prisma for the MVP (zero-ops, file-based), schema written so swapping
 `DATABASE_URL` to Postgres is the only change needed later. A map has a `draft` config (edited

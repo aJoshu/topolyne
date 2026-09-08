@@ -2,14 +2,13 @@
   "name": "topolyne",
   "private": true,
   "version": "0.1.0",
-  "description": "Topolyne — design-first map platform for developers. Beautiful maps, one React component.",
+  "description": "Topolyne's open-source SDK — @topolyne/react, @topolyne/style-engine, @topolyne/config-schema. The hosted editor/dashboard at topolyne.com lives in a separate private repo.",
   "engines": {
     "node": ">=20.11"
   },
   "packageManager": "pnpm@10.28.0",
   "scripts": {
-    "dev": "pnpm --filter @topolyne/web dev",
-    "build": "pnpm -r --filter=./packages/* build && pnpm --filter @topolyne/web build",
+    "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck"
   }
