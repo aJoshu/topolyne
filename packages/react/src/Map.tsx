@@ -60,6 +60,9 @@ function SkyOverlays({ showGrain }: { showGrain: boolean }) {
   );
 }
 
+const PITCH_MAX = 85;
+const DRAG_SENSITIVITY = 0.5;
+
 export interface MapProps {
   /** The id you got back from "Publish" in the Topolyne editor, e.g. "map_Nvm9w6Wn9d". */
   mapId: string;
@@ -100,6 +103,7 @@ export function Map({
 }: MapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
+  const dragRotateCleanupRef = useRef<(() => void) | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
@@ -160,6 +164,86 @@ export function Map({
           attributionControl: { compact: true },
         });
         closeCompactAttribution(map);
+
+        // Middle-click drag to tilt/rotate — same affordance the editor's
+        // own live preview has, so a published design behaves identically
+        // whether you're looking at it on topolyne.com or embedded via this
+        // component. MapLibre's own dragRotate handler already does this,
+        // just bound to right-click/Ctrl+drag, not the middle button. Only
+        // wired up when the map is interactive at all.
+        if (interactive) {
+          const canvasContainer = map.getCanvasContainer();
+          let dragging = false;
+          let startX = 0;
+          let startY = 0;
+          let startPitch = 0;
+          let startBearing = 0;
+          // Coalesced to at most one setPitch/setBearing pair per frame
+          // instead of one per raw mousemove (which can fire faster than
+          // the display's refresh rate during a fast drag) — calling
+          // MapLibre's camera setters that quickly, especially alongside a
+          // resize, can leave its transform matrix transiently degenerate,
+          // throwing an uncaught "failed to invert matrix" that freezes the
+          // map entirely.
+          let pendingFrame: number | null = null;
+          let pendingPitch = 0;
+          let pendingBearing = 0;
+
+          const onMouseMove = (e: MouseEvent) => {
+            if (!dragging || !map) return;
+            pendingPitch = Math.min(PITCH_MAX, Math.max(0, startPitch - (e.clientY - startY) * DRAG_SENSITIVITY));
+            pendingBearing = startBearing + (e.clientX - startX) * DRAG_SENSITIVITY;
+            if (pendingFrame !== null) return;
+            pendingFrame = requestAnimationFrame(() => {
+              pendingFrame = null;
+              try {
+                map?.setPitch(pendingPitch);
+                map?.setBearing(pendingBearing);
+              } catch {
+                // Transient MapLibre matrix-invert failure under rapid
+                // updates — drop this frame's update rather than crash.
+              }
+            });
+          };
+          const onMouseUp = () => {
+            if (!dragging) return;
+            dragging = false;
+            window.removeEventListener("mousemove", onMouseMove);
+            window.removeEventListener("mouseup", onMouseUp);
+            // Apply whatever the last mousemove computed immediately
+            // instead of just cancelling it — otherwise the camera snaps
+            // back to wherever the last *rendered* frame left it, one
+            // frame behind the actual mouse position at release.
+            if (pendingFrame !== null) {
+              cancelAnimationFrame(pendingFrame);
+              pendingFrame = null;
+              try {
+                map?.setPitch(pendingPitch);
+                map?.setBearing(pendingBearing);
+              } catch {
+                // Same transient matrix-invert guard as above.
+              }
+            }
+          };
+          const onMouseDown = (e: MouseEvent) => {
+            if (e.button !== 1 || !map) return;
+            e.preventDefault();
+            dragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            startPitch = map.getPitch();
+            startBearing = map.getBearing();
+            window.addEventListener("mousemove", onMouseMove);
+            window.addEventListener("mouseup", onMouseUp);
+          };
+          canvasContainer.addEventListener("mousedown", onMouseDown);
+          dragRotateCleanupRef.current = () => {
+            canvasContainer.removeEventListener("mousedown", onMouseDown);
+            window.removeEventListener("mousemove", onMouseMove);
+            window.removeEventListener("mouseup", onMouseUp);
+          };
+        }
+
         // A style's `terrain`/`sky` fields passed at construction time
         // aren't always picked up on their own - setting both explicitly
         // once the style has actually finished loading is the reliable way
@@ -188,6 +272,8 @@ export function Map({
 
     return () => {
       cancelled = true;
+      dragRotateCleanupRef.current?.();
+      dragRotateCleanupRef.current = null;
       map?.remove();
       mapRef.current = null;
       setLoaded(false);
